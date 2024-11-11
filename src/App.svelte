@@ -153,6 +153,7 @@
         padding: 10px 0;
         cursor: pointer;
         transition: background 0.3s;
+        border-radius: 5%;
     }
 
     .menu-item:hover {
