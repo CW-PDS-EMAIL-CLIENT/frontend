@@ -58,7 +58,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        width: 300px;
+        width: 350px;
         padding: 20px;
         background-color: #fff;
         border: 1px solid #ddd;

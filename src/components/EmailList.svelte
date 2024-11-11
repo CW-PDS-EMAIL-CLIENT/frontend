@@ -8,6 +8,7 @@
         <div class="email-item" on:click={() => onEmailSelect(email)}>
             <span class="sender">{email.sender}</span>
             <span class="subject">{email.subject}</span>
+            <span class="icon">🗑️</span>
             <span class="date">{email.date}</span>
         </div>
     {/each}
@@ -44,8 +45,17 @@
         color: #666;
     }
 
+    .icon {
+        margin-right: 10px;
+    }
+
+    .icon:hover {
+        background-color: #999;
+    }
+
     .date {
         color: #999;
         font-size: 0.9em;
     }
+
 </style>
