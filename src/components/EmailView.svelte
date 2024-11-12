@@ -6,10 +6,22 @@
 <div class="email-view">
     <button class="back-button" on:click={onClose}>⬅</button>
     <h2>{email.sender}</h2>
-    <p>{email.subject}</p>
+    <p><strong>Тема:</strong> {email.subject}</p>
+    <p><strong>Кому:</strong> {email.to}</p>
+    <p><strong>Дата:</strong> {email.date}</p>
     <div class="email-content">
-        <p>Содержимое письма отображается здесь...</p>
+        <p>{@html email.body}</p>
     </div>
+    {#if email.attachments && email.attachments.length > 0}
+        <div class="attachments">
+            <h3>Вложения:</h3>
+            <ul>
+                {#each email.attachments as attachment}
+                    <li>{attachment}</li>
+                {/each}
+            </ul>
+        </div>
+    {/if}
 </div>
 
 <style>

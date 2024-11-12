@@ -1,15 +1,25 @@
 <script>
-    export let emails = [];
+    export let emails;
     export let onEmailSelect;
+
+        // Функция для форматирования даты
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }).format(date);
+    }
 </script>
 
 <div class="email-list">
-    {#each emails as email}
+    {#each $emails as email}
         <div class="email-item" on:click={() => onEmailSelect(email)}>
             <span class="sender">{email.sender}</span>
             <span class="subject">{email.subject}</span>
+            <span class="date">{formatDate(email.date)}</span>
             <span class="icon">🗑️</span>
-            <span class="date">{email.date}</span>
         </div>
     {/each}
 </div>

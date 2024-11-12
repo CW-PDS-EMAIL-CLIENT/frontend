@@ -7,20 +7,23 @@
     
     export let isOpen = true;
     let selectedEmail = null;
-    let isComposing = false; // Управление состоянием окна "Написать"
+    let isComposing = false;
 
-    const emails = [
-        { id: 1, sender: "Factorio", subject: "Friday Facts #436 - Lost in Translation", date: "8 нояб." },
-        { id: 2, sender: "Ozon", subject: "Электронный чек + (1) подарок", date: "8 нояб." },
-        { id: 3, sender: "Steam", subject: "Началось восстановление мобильного аутентификатора", date: "7 нояб." },
-    ];
+    const emails = writable([]);  // Хранилище для списка писем
 
-    function toggleSidebar() {
-        isOpen = !isOpen;
+    onMount(async () => {
+        await loadEmails(); // Загружаем письма при инициализации
+    });
+
+    async function loadEmails() {
+        const response = await fetch("http://localhost:8000/emails/");
+        const data = await response.json();
+        emails.set(data.emailsList);  // Обновляем список писем
     }
 
-    function openEmail(email) {
-        selectedEmail = email;
+    async function openEmail(email) {
+        const response = await fetch(`http://localhost:8000/emails/${email.id}`);
+        selectedEmail = await response.json();  // Загружаем подробности по письму
     }
 
     function closeEmail() {
@@ -44,19 +47,13 @@
 <main>
     <!-- Боковое меню -->
     <div class="sidebar {isOpen ? 'open' : 'closed'}">
-        <button class="toggle-button" on:click={toggleSidebar}>
-            ☰
-        </button>
-        
-        <!-- Кнопка "Написать" -->
+        <button class="toggle-button" on:click={() => isOpen = !isOpen}>☰</button>
         <div class="menu-item" on:click={openCompose}>
             <span class="icon">✏️</span>
             {#if isOpen}
                 <span class="text">Написать</span>
             {/if}
         </div>
-
-        <!-- Входящие -->
         <div class="menu-item" on:click={showInbox}>
             <span class="icon">📥</span>
             {#if isOpen}
@@ -64,7 +61,7 @@
             {/if}
         </div>
 
-        <!-- Помеченные -->
+                <!-- Помеченные -->
         <div class="menu-item">
             <span class="icon">⭐</span>
             {#if isOpen}
@@ -104,12 +101,11 @@
             <EmailView email={selectedEmail} onClose={closeEmail} />
         {:else}
             <!-- Список писем -->
-            <EmailList emails={emails} onEmailSelect={openEmail} />
-        {/if}
+            <EmailList {emails} onEmailSelect={openEmail} />
+        {/if}    
     </div>
 
     {#if isComposing}
-        <!-- Окно для написания нового письма, закреплено в правом нижнем углу -->
         <ComposeEmail on:close={closeCompose} />
     {/if}
 </main>
