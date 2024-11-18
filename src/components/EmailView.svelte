@@ -1,6 +1,16 @@
 <script>
     export let email;
     export let onClose;
+
+        // Функция для форматирования даты
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    }
 </script>
 
 <div class="email-view">
@@ -8,7 +18,7 @@
     <h2>{email.sender}</h2>
     <p><strong>Тема:</strong> {email.subject}</p>
     <p><strong>Кому:</strong> {email.to}</p>
-    <p><strong>Дата:</strong> {email.date}</p>
+    <p><strong>Дата:</strong> {formatDate(email.date)}</p>
     <div class="email-content">
         <p>{@html email.body}</p>
     </div>

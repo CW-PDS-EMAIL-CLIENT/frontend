@@ -2,7 +2,7 @@
     export let emails;
     export let onEmailSelect;
 
-        // Функция для форматирования даты
+    // Функция для форматирования даты
     function formatDate(dateString) {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('ru-RU', {
