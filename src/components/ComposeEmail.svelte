@@ -6,18 +6,61 @@
     let to = "";
     let subject = "";
     let message = "";
-    let attachments = [];
+    let attachments = []; // Хранилище выбранных файлов
     let isExpanded = writable(false); // Управление состоянием окна
 
-    function sendEmail() {
-        alert(`Письмо отправлено!\nКому: ${to}\nТема: ${subject}\nСообщение: ${message}\nПрикреплено файлов: ${attachments.length}`);
-        dispatch("close"); // Закрываем окно после отправки
+    // Отправка письма через API
+    async function sendEmail() {
+        const formData = new FormData();
+        formData.append("to_email", to);
+        formData.append("subject", subject);
+        formData.append("body", message);
+        formData.append("from_name", "Your Name");
+        formData.append("to_name", "Recipient Name");
+
+        // Добавляем файлы в FormData
+        attachments.forEach(file => formData.append("attachments", file));
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/emails/send", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                alert("Письмо успешно отправлено!");
+                clearForm();
+                dispatch("close");
+            } else {
+                const errorData = await response.json();
+                alert(`Ошибка отправки: ${errorData.detail}`);
+            }
+        } catch (error) {
+            alert(`Произошла ошибка: ${error.message}`);
+        }
     }
 
     function handleFileChange(event) {
-        attachments = [...attachments, ...event.target.files];
+        // Добавляем выбранные файлы в массив вложений
+        Array.from(event.target.files).forEach(file => {
+            attachments = [...attachments, file];
+        });
     }
 
+    // Удаление файла из списка
+    function removeAttachment(index) {
+        attachments = attachments.filter((_, i) => i !== index);
+    }
+
+    // Очистка формы
+    function clearForm() {
+        to = "";
+        subject = "";
+        message = "";
+        attachments = [];
+    }
+
+    // Расширение/сворачивание окна
     function toggleExpand() {
         isExpanded.update(value => !value);
     }
@@ -46,8 +89,11 @@
         <input type="file" multiple on:change={handleFileChange} />
     </label>
     <ul>
-        {#each attachments as file}
-            <li>{file.name} ({Math.round(file.size / 1024)} KB)</li>
+        {#each attachments as file, index}
+            <li>
+                {file.name} ({Math.round(file.size / 1024)} KB)
+                <button on:click={() => removeAttachment(index)}>Удалить</button>
+            </li>
         {/each}
     </ul>
     <button on:click={sendEmail}>Отправить</button>
@@ -111,5 +157,11 @@
     li {
         font-size: 0.9em;
         color: #555;
+    }
+
+    li button {
+        margin-left: 10px;
+        color: red;
+        cursor: pointer;
     }
 </style>
