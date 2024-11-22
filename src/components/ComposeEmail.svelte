@@ -1,13 +1,27 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
+    import { drafts } from "./drafts.js";
+
+    export let id = null; // Переданный id черновика
 
     const dispatch = createEventDispatcher();
+
     let to = "";
     let subject = "";
     let message = "";
     let attachments = []; // Хранилище выбранных файлов
     let isExpanded = writable(false); // Управление состоянием окна
+
+    // Инициализация черновика при монтировании
+    $: {
+        if (id !== null) {
+            const existingDraft = $drafts.find((draft) => draft.id === id);
+            if (existingDraft) {
+                openDraft(existingDraft);
+            }
+        }
+    }
 
     // Отправка письма через API
     async function sendEmail() {
@@ -52,23 +66,65 @@
         attachments = attachments.filter((_, i) => i !== index);
     }
 
+    // Расширение/сворачивание окна
+    function toggleExpand() {
+        isExpanded.update(value => !value);
+    }
+
+    // Сохранение черновика
+    function saveDraft() {
+        if (to.length === 0 && subject.length === 0 && message.length === 0 && attachments.length === 0) return;
+
+        drafts.update((existingDrafts) => {
+            if (id !== null) {
+                // Обновление существующего черновика
+                const draftIndex = existingDrafts.findIndex((d) => d.id === id);
+                if (draftIndex !== -1) {
+                    existingDrafts[draftIndex] = { id, to, subject, message, attachments };
+                }
+            } else {
+                // Создание нового черновика
+                id = Date.now();
+                existingDrafts.push({ id, to, subject, message, attachments });
+            }
+            return existingDrafts;
+        });
+    }
+
+    // Открытие существующего черновика
+    function openDraft(draft) {
+        to = draft.to || "";
+        subject = draft.subject || "";
+        message = draft.message || "";
+        attachments = draft.attachments || [];
+    }
+
+    // Удаление черновика
+    function deleteDraft() {
+        drafts.update((existingDrafts) => existingDrafts.filter((d) => d.id !== id));
+        clearForm();
+    }
+
     // Очистка формы
     function clearForm() {
         to = "";
         subject = "";
         message = "";
         attachments = [];
+        id = null;
     }
 
-    // Расширение/сворачивание окна
-    function toggleExpand() {
-        isExpanded.update(value => !value);
+    // Автосохранение при изменении полей
+    $: {
+        if (to || subject || message || attachments.length > 0) {
+            saveDraft();
+        }
     }
 </script>
 
 <div class="compose-email" class:is-expanded={$isExpanded}>
     <div class="header">
-        <h2>Написать письмо</h2>
+        <h2>{id ? "Редактировать черновик" : "Написать письмо"}</h2>
         <button on:click={toggleExpand}>{$isExpanded ? "Свернуть" : "Развернуть"}</button>
         <button on:click={() => dispatch("close")}>Закрыть</button>
     </div>

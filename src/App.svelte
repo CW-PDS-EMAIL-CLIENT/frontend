@@ -4,12 +4,16 @@
     import EmailList from "./components/EmailList.svelte";
     import EmailView from "./components/EmailView.svelte";
     import ComposeEmail from "./components/ComposeEmail.svelte";
-    
+    import DraftList from "./components/DraftList.svelte";
+
     export let isOpen = true;
+
     let selectedEmail = null;
     let isComposing = false;
+    let isDraftsView = false; // Флаг для отображения черновиков
+    let draftId = null; // ID текущего редактируемого черновика
 
-    const emails = writable([]);  // Хранилище для списка писем
+    const emails = writable([]); // Хранилище для списка писем
 
     onMount(async () => {
         await loadEmails(); // Загружаем письма при инициализации
@@ -18,12 +22,12 @@
     async function loadEmails() {
         const response = await fetch("http://localhost:8000/emails/");
         const data = await response.json();
-        emails.set(data.emailsList);  // Обновляем список писем
+        emails.set(data.emailsList); // Обновляем список писем
     }
 
     async function openEmail(email) {
         const response = await fetch(`http://localhost:8000/emails/${email.id}`);
-        selectedEmail = await response.json();  // Загружаем подробности по письму
+        selectedEmail = await response.json(); // Загружаем подробности по письму
     }
 
     function closeEmail() {
@@ -32,15 +36,33 @@
 
     function openCompose() {
         isComposing = true;
+        isDraftsView = false;
+        draftId = null; // Создаётся новый черновик
     }
 
     function closeCompose() {
         isComposing = false;
+        draftId = null;
     }
 
     function showInbox() {
         selectedEmail = null;
         isComposing = false;
+        isDraftsView = false;
+        draftId = null;
+    }
+
+    function showDrafts() {
+        selectedEmail = null;
+        isComposing = false;
+        isDraftsView = true;
+        draftId = null;
+    }
+
+    function openDraft(draft) {
+        draftId = draft.id; // Передаём id черновика
+        isComposing = true;
+        isDraftsView = false; // Закрываем список черновиков
     }
 </script>
 
@@ -61,7 +83,7 @@
             {/if}
         </div>
 
-                <!-- Помеченные -->
+        <!-- Помеченные -->
         <div class="menu-item">
             <span class="icon">⭐</span>
             {#if isOpen}
@@ -70,7 +92,7 @@
         </div>
 
         <!-- Черновики -->
-        <div class="menu-item">
+        <div class="menu-item" on:click={showDrafts}>
             <span class="icon">📝</span>
             {#if isOpen}
                 <span class="text">Черновики</span>
@@ -96,17 +118,21 @@
 
     <!-- Основное содержимое -->
     <div class="content" style="margin-left: {isOpen ? '160px' : '45px'};">
-        {#if selectedEmail}
+        {#if isDraftsView}
+            <!-- Список черновиков -->
+            <DraftList onSelectDraft={openDraft} />
+        {:else if selectedEmail}
             <!-- Просмотр письма -->
             <EmailView email={selectedEmail} onClose={closeEmail} />
         {:else}
             <!-- Список писем -->
             <EmailList {emails} onEmailSelect={openEmail} />
         {/if}    
-    </div>
+    </div>    
 
     {#if isComposing}
-        <ComposeEmail on:close={closeCompose} />
+        <!-- Передаём draftId в компонент -->
+        <ComposeEmail id={draftId} on:close={closeCompose} />
     {/if}
 </main>
 
