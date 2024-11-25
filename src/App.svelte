@@ -12,6 +12,7 @@
     let isComposing = false;
     let isDraftsView = false; // Флаг для отображения черновиков
     let draftId = null; // ID текущего редактируемого черновика
+    let isSentView = false; // Флаг для отображения отправленных писем
 
     const emails = writable([]); // Хранилище для списка писем
 
@@ -19,10 +20,14 @@
         await loadEmails(); // Загружаем письма при инициализации
     });
 
-    async function loadEmails() {
-        const response = await fetch("http://localhost:8000/emails/");
+    async function loadEmails(folder = "inbox") {
+        let url = "http://localhost:8000/emails/";
+        if (folder === "sent") {
+            url += "?folder_name=%26BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-";
+        }
+        const response = await fetch(url);
         const data = await response.json();
-        emails.set(data.emailsList); // Обновляем список писем
+        emails.set(data.emailsList);
     }
 
     async function openEmail(email) {
@@ -37,7 +42,8 @@
     function openCompose() {
         isComposing = true;
         isDraftsView = false;
-        draftId = null; // Создаётся новый черновик
+        isSentView = false;
+        draftId = null;
     }
 
     function closeCompose() {
@@ -49,14 +55,23 @@
         selectedEmail = null;
         isComposing = false;
         isDraftsView = false;
-        draftId = null;
+        isSentView = false;
+        loadEmails();
     }
 
     function showDrafts() {
         selectedEmail = null;
         isComposing = false;
         isDraftsView = true;
-        draftId = null;
+        isSentView = false;
+    }
+
+    function showSent() {
+        selectedEmail = null;
+        isComposing = false;
+        isDraftsView = false;
+        isSentView = true;
+        loadEmails("sent");
     }
 
     function openDraft(draft) {
@@ -84,10 +99,17 @@
         </div>
 
         <!-- Помеченные -->
-        <div class="menu-item">
+        <!-- <div class="menu-item">
             <span class="icon">⭐</span>
             {#if isOpen}
                 <span class="text">Помеченные</span>
+            {/if}
+        </div> -->
+
+        <div class="menu-item" on:click={showSent}>
+            <span class="icon">📤</span>
+            {#if isOpen}
+                <span class="text">Отправленные</span>
             {/if}
         </div>
 
@@ -121,6 +143,8 @@
         {#if isDraftsView}
             <!-- Список черновиков -->
             <DraftList onSelectDraft={openDraft} />
+        {:else if isSentView}
+            <EmailList {emails} onEmailSelect={openEmail} />
         {:else if selectedEmail}
             <!-- Просмотр письма -->
             <EmailView email={selectedEmail} onClose={closeEmail} />
