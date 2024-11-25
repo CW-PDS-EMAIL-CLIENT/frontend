@@ -1,6 +1,7 @@
 <script>
     export let emails;
     export let onEmailSelect;
+    export let folderName = "Inbox"; // Добавляем проп для папки
 
     // Функция для форматирования даты
     function formatDate(dateString) {
@@ -15,7 +16,7 @@
 
 <div class="email-list">
     {#each $emails as email}
-        <div class="email-item" on:click={() => onEmailSelect(email)}>
+        <div class="email-item" on:click={() => onEmailSelect(email.id, folderName)}>
             <span class="sender">{email.sender}</span>
             <span class="subject">{email.subject}</span>
             <span class="date">{formatDate(email.date)}</span>

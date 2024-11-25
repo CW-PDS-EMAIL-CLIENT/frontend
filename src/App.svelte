@@ -14,26 +14,68 @@
     let draftId = null; // ID текущего редактируемого черновика
     let isSentView = false; // Флаг для отображения отправленных писем
 
+    let selectedFolder = "inbox";
+
     const emails = writable([]); // Хранилище для списка писем
 
     onMount(async () => {
         await loadEmails(); // Загружаем письма при инициализации
     });
 
-    async function loadEmails(folder = "inbox") {
+    async function loadEmails() {
         let url = "http://localhost:8000/emails/";
-        if (folder === "sent") {
-            url += "?folder_name=%26BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-";
+
+        // Формируем тело запроса
+        const body = JSON.stringify({ folder_name: selectedFolder });
+
+        const response = await fetch(url, {
+            method: 'POST', // Используем POST
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: body, // Параметры передаем в теле запроса
+        });
+
+        if (!response.ok) {
+            console.error("Error fetching emails:", response.status);
+            return;
         }
-        const response = await fetch(url);
+
         const data = await response.json();
         emails.set(data.emailsList);
     }
 
-    async function openEmail(email) {
-        const response = await fetch(`http://localhost:8000/emails/${email.id}`);
-        selectedEmail = await response.json(); // Загружаем подробности по письму
+// Функция получения деталей письма
+async function openEmail(emailId) {
+        try {
+            const url = "http://localhost:8000/emails/info/";
+
+            // Формируем тело запроса
+            const body = JSON.stringify({ email_id: emailId, folder_name: selectedFolder });
+
+            const response = await fetch(url, {
+                method: 'POST', // Используем POST
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: body, // Параметры передаем в теле запроса
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text(); // Извлекаем текст ошибки
+                alert(`Error fetching email details: ${response.status}\n${errorText}`);
+                console.error(`Error fetching email details: ${response.status}`, errorText);
+                return;
+            }
+
+            // Здесь тело ответа используется только один раз
+            selectedEmail = await response.json(); // Загружаем информацию о письме
+        } catch (error) {
+            alert(`Failed to fetch email details: ${error.message}`);
+            console.error("Failed to fetch email details:", error);
+        }
     }
+
 
     function closeEmail() {
         selectedEmail = null;
@@ -56,6 +98,7 @@
         isComposing = false;
         isDraftsView = false;
         isSentView = false;
+        selectedFolder = "Inbox";
         loadEmails();
     }
 
@@ -71,7 +114,8 @@
         isComposing = false;
         isDraftsView = false;
         isSentView = true;
-        loadEmails("sent");
+        selectedFolder = "&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-";
+        loadEmails();
     }
 
     function openDraft(draft) {
