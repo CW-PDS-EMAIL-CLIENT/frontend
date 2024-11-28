@@ -4,19 +4,22 @@
     import EmailView from "./components/EmailView.svelte";
     import ComposeEmail from "./components/ComposeEmail.svelte";
     import DraftList from "./components/DraftList.svelte";
+    import EncryptionSettings from "./components/EncryptionSettings.svelte";
 
+    // Состояние приложения
     export let isOpen = true;
 
     let isComposing = false;
     let isDraftsView = false;
+    let isEncryptionView = false; // Для отображения настроек шифрования
     let draftId = null;
-
     let selectedFolder = "Inbox"; // По умолчанию папка "Входящие"
 
     // Открыть окно для написания письма
     function openCompose() {
         isComposing = true;
         isDraftsView = false;
+        isEncryptionView = false;
         draftId = null;
     }
 
@@ -29,24 +32,28 @@
     function showInbox() {
         selectedFolder = "Inbox";
         isDraftsView = false;
+        isEncryptionView = false;
     }
 
     // Отображение черновиков
     function showDrafts() {
         isComposing = false;
         isDraftsView = true;
+        isEncryptionView = false;
     }
 
     // Отображение папки "Отправленные"
     function showSent() {
         selectedFolder = "&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-";
         isDraftsView = false;
+        isEncryptionView = false;
     }
 
     // Отображение папки "Корзина"
     function showTrash() {
         selectedFolder = "Trash";
         isDraftsView = false;
+        isEncryptionView = false;
     }
 
     // Открытие черновика
@@ -54,6 +61,13 @@
         draftId = draft.id;
         isComposing = true;
         isDraftsView = false;
+        isEncryptionView = false;
+    }
+
+    // Открытие настроек шифрования
+    function showEncryptionSettings() {
+        isDraftsView = false;
+        isEncryptionView = true;
     }
 </script>
 
@@ -91,7 +105,7 @@
         </div>
 
         <!-- Пункт меню "Шифрование" -->
-        <div class="menu-item">
+        <div class="menu-item" on:click={showEncryptionSettings}>
             <span class="icon">🔒</span>
             {#if isOpen}
                 <span class="text">Шифрование</span>
@@ -108,16 +122,16 @@
 
     <!-- Основное содержимое -->
     <div class="content" style="margin-left: {isOpen ? '160px' : '45px'};">
-        {#if isDraftsView}
+        {#if isEncryptionView}
+            <EncryptionSettings />
+        {:else if isDraftsView}
             <DraftList onSelectDraft={openDraft} />
         {:else}
-            <!-- Список писем -->
             <EmailList key={selectedFolder} toSearchFolderName={selectedFolder} />
-        {/if}    
+        {/if}
     </div>
 
     {#if isComposing}
-        <!-- Передаём draftId в компонент -->
         <ComposeEmail id={draftId} on:close={closeCompose} />
     {/if}
 </main>
