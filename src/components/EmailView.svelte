@@ -8,6 +8,7 @@
 
     // Функция для загрузки подробной информации о письме
     async function loadEmailDetails() {
+        email = null;
         try {
             const response = await fetch('http://localhost:8000/emails/info/', {
                 method: 'POST',
@@ -40,8 +41,8 @@
     }
 
 
-        // Функция для загрузки файла
-        async function downloadFile(filename) {
+    // Функция для загрузки файла
+    async function downloadFile(filename) {
         try {
             const response = await fetch(`http://localhost:8000/attachments/${filename}`);
             if (!response.ok) {
@@ -72,39 +73,40 @@
     }
 
     // Загрузка данных о письме при изменении idEmail
-    $: idEmail, folderEmail, loadEmailDetails();
-    $: folderEmail, loadEmailDetails();
+    $: if (idEmail) {
+        loadEmailDetails();
+    }
 
 </script>
 
-    <div class="email-view">
-        <button class="back-button" on:click={onClose}>⬅</button>
-        {#if email}
-            <h2>{email.sender}</h2>
-            <p><strong>Тема:</strong> {email.subject}</p>
-            <p><strong>Кому:</strong> {email.to}</p>
-            <p><strong>Дата:</strong> {formatDate(email.date)}</p>
-            <div class="email-content">
-                <p>{@html email.body}</p>
+<div class="email-view">
+    <button class="back-button" on:click={onClose}>⬅</button>
+    {#if email}
+        <h2>{email.sender}</h2>
+        <p><strong>Тема:</strong> {email.subject}</p>
+        <p><strong>Кому:</strong> {email.to}</p>
+        <p><strong>Дата:</strong> {formatDate(email.date)}</p>
+        <div class="email-content">
+            <p>{@html email.body}</p>
+        </div>
+        {#if email.attachments && email.attachments.length > 0}
+            <div class="attachments">
+                <h3>Вложения:</h3>
+                <ul>
+                    {#each email.attachments as attachment}
+                        <li>
+                            {attachment}
+                            <button class="download-button" on:click={() => downloadFile(attachment)}>Скачать</button>
+                        </li>
+                    {/each}
+                </ul>
             </div>
-            {#if email.attachments && email.attachments.length > 0}
-                <div class="attachments">
-                    <h3>Вложения:</h3>
-                    <ul>
-                        {#each email.attachments as attachment}
-                            <li>
-                                {attachment}
-                                <button class="download-button" on:click={() => downloadFile(attachment)}>Скачать</button>
-                            </li>
-                        {/each}
-                    </ul>
-                </div>
-            {/if}
-        {:else}
-            <p>Загрузка...</p>
         {/if}
+    {:else}
+        <p>Загрузка...</p>
+    {/if}
 
-    </div>
+</div>
 
 <style>
     .email-view {

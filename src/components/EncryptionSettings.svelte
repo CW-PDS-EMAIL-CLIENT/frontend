@@ -1,5 +1,7 @@
 <script>
     import { onMount } from "svelte";
+    import { userEncrypt } from "./store"
+    import { loop_guard } from "svelte/internal";
 
     let keysData = []; // Данные таблицы с ключами
 
@@ -91,6 +93,11 @@
 
 <div class="encryption-settings">
     <div class="actions">
+        <label>
+            Использовать шифрование {$userEncrypt ? "Да" : "Нет"}
+            <input type="checkbox" bind:checked={$userEncrypt}/>
+        </label>
+
         <button on:click={exportKeys}>Экспортировать ключи</button>
         <input type="file" accept=".json" on:change={importKeys} />
     </div>

@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
     import { drafts } from "./drafts.js";
+    import { userEncrypt } from "./store.js";
 
     export let id = null; // Переданный id черновика
 
@@ -33,10 +34,13 @@
         formData.append("to_name", "Recipient Name");
 
         // Добавляем файлы в FormData
-        attachments.forEach(file => formData.append("attachments", file));
+        attachments.forEach((file) => formData.append("attachments", file));
+
+        // Добавляем глобальную переменную userEncrypt
+        formData.append("use_encrypt", $userEncrypt);
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/emails/send/", {
+            const response = await fetch("http://127.0.0.1:8000/emails/sent/", {
                 method: "POST",
                 body: formData,
             });
