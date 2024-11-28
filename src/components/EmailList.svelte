@@ -55,6 +55,42 @@
         }).format(date);
     }
 
+    // Удаление письма
+    async function deleteEmail(emailId) {
+        const confirmed = confirm("Вы уверены, что хотите удалить это письмо?");
+        if (!confirmed) return;
+
+        try {
+            // Отправка запроса на сервер для удаления письма
+            const response = await fetch("http://localhost:8000/email/move_to_trash_or_delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email_id: emailId, folder_name: toSearchFolderName }),
+            });
+
+            // Проверка на успешный ответ
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Ошибка при удалении письма: ${errorData.detail}`);
+                return;
+            }
+
+            const result = await response.json();
+            alert(result.message);
+
+            // Удаляем письмо из локального списка
+            emails.update((currentEmails) =>
+                currentEmails.filter((email) => email.id !== emailId)
+            );
+
+        } catch (error) {
+            console.error("Ошибка при удалении письма:", error);
+            alert("Произошла ошибка при удалении письма.");
+        }
+    }
+
     // Обработчик выбора письма
     function onEmailSelect(emailId) {
         selectedEmailId = emailId;
@@ -81,6 +117,13 @@
                     <span class="sender">{email.sender}</span>
                     <span class="subject">{email.subject}</span>
                     <span class="date">{formatDate(email.date)}</span>
+                    <!-- Кнопка для удаления письма -->
+                    <button
+                        class="delete-button"
+                        on:click|stopPropagation={() => deleteEmail(email.id)}
+                    >
+                        Удалить
+                    </button>
                 </div>
             {/each}
         {:else}
