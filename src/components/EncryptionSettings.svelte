@@ -10,7 +10,7 @@
         try {
             const response = await fetch("http://127.0.0.1:8000/keys/related-dates/");
             keysData = await response.json();
-            alert("Данные загружены: " + JSON.stringify(keysData, null, 2));
+            //alert("Данные загружены: " + JSON.stringify(keysData, null, 2));
         } catch (error) {
             alert("Ошибка загрузки данных: " + error.message);
         }
@@ -94,8 +94,9 @@
 <div class="encryption-settings">
     <div class="actions">
         <label>
-            Использовать шифрование {$userEncrypt ? "Да" : "Нет"}
+            Использовать шифрование
             <input type="checkbox" bind:checked={$userEncrypt}/>
+            {$userEncrypt ? "Да" : "Нет"}
         </label>
 
         <button on:click={exportKeys}>Экспортировать ключи</button>
