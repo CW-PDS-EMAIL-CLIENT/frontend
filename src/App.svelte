@@ -5,6 +5,7 @@
     import ComposeEmail from "./components/ComposeEmail.svelte";
     import DraftList from "./components/DraftList.svelte";
     import EncryptionSettings from "./components/EncryptionSettings.svelte";
+    import AccountsManager from "./components/AccountsManager.svelte";
 
     // Состояние приложения
     export let isOpen = true;
@@ -12,6 +13,7 @@
     let isComposing = false;
     let isDraftsView = false;
     let isEncryptionView = false; // Для отображения настроек шифрования
+    let isAccountsView = false;
     let draftId = null;
     let selectedFolder = "Inbox"; // По умолчанию папка "Входящие"
 
@@ -69,6 +71,12 @@
         isDraftsView = false;
         isEncryptionView = true;
     }
+    
+    function showAccounts() {
+        isEncryptionView = false;
+        isAccountsView = true;
+    }
+
 </script>
 
 <main>
@@ -112,6 +120,11 @@
             {/if}
         </div>
 
+        <div class="menu-item" on:click={showAccounts}>
+            <span class="icon">👤</span>
+            {#if isOpen}<span class="text">Аккаунты</span>{/if}
+        </div>
+
         <div class="menu-item" on:click={showTrash}>
             <span class="icon">🗑️</span>
             {#if isOpen}
@@ -126,6 +139,8 @@
             <EncryptionSettings />
         {:else if isDraftsView}
             <DraftList onSelectDraft={openDraft} />
+        {:else if isAccountsView}
+            <AccountsManager />
         {:else}
             <EmailList key={selectedFolder} toSearchFolderName={selectedFolder} />
         {/if}
