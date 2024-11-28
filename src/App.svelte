@@ -34,6 +34,7 @@
     function showInbox() {
         selectedFolder = "Inbox";
         isDraftsView = false;
+        isAccountsView = false;
         isEncryptionView = false;
     }
 
@@ -41,6 +42,7 @@
     function showDrafts() {
         isComposing = false;
         isDraftsView = true;
+        isAccountsView = false;
         isEncryptionView = false;
     }
 
@@ -55,6 +57,7 @@
     function showTrash() {
         selectedFolder = "Trash";
         isDraftsView = false;
+        isAccountsView = false;
         isEncryptionView = false;
     }
 
@@ -63,6 +66,7 @@
         draftId = draft.id;
         isComposing = true;
         isDraftsView = false;
+        isAccountsView = false;
         isEncryptionView = false;
     }
 
