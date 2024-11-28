@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from "svelte";
     import { writable } from "svelte/store";
     import EmailList from "./components/EmailList.svelte";
     import EmailView from "./components/EmailView.svelte";
@@ -8,83 +7,16 @@
 
     export let isOpen = true;
 
-    let selectedEmail = null;
     let isComposing = false;
-    let isDraftsView = false; // Флаг для отображения черновиков
-    let draftId = null; // ID текущего редактируемого черновика
-    let isSentView = false; // Флаг для отображения отправленных писем
+    let isDraftsView = false;
+    let draftId = null;
 
-    let selectedFolder = "inbox";
+    let selectedFolder = "Inbox"; // По умолчанию папка "Входящие"
 
-    const emails = writable([]); // Хранилище для списка писем
-
-    onMount(async () => {
-        await loadEmails(); // Загружаем письма при инициализации
-    });
-
-    async function loadEmails() {
-        let url = "http://localhost:8000/emails/";
-
-        // Формируем тело запроса
-        const body = JSON.stringify({ folder_name: selectedFolder });
-
-        const response = await fetch(url, {
-            method: 'POST', // Используем POST
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: body, // Параметры передаем в теле запроса
-        });
-
-        if (!response.ok) {
-            console.error("Error fetching emails:", response.status);
-            return;
-        }
-
-        const data = await response.json();
-        emails.set(data.emailsList);
-    }
-
-// Функция получения деталей письма
-async function openEmail(emailId) {
-        try {
-            const url = "http://localhost:8000/emails/info/";
-
-            // Формируем тело запроса
-            const body = JSON.stringify({ email_id: emailId, folder_name: selectedFolder });
-
-            const response = await fetch(url, {
-                method: 'POST', // Используем POST
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: body, // Параметры передаем в теле запроса
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text(); // Извлекаем текст ошибки
-                alert(`Error fetching email details: ${response.status}\n${errorText}`);
-                console.error(`Error fetching email details: ${response.status}`, errorText);
-                return;
-            }
-
-            // Здесь тело ответа используется только один раз
-            selectedEmail = await response.json(); // Загружаем информацию о письме
-        } catch (error) {
-            alert(`Failed to fetch email details: ${error.message}`);
-            console.error("Failed to fetch email details:", error);
-        }
-    }
-
-
-    function closeEmail() {
-        selectedEmail = null;
-    }
-
+    // Открыть окно для написания письма
     function openCompose() {
         isComposing = true;
         isDraftsView = false;
-        isSentView = false;
         draftId = null;
     }
 
@@ -93,35 +25,35 @@ async function openEmail(emailId) {
         draftId = null;
     }
 
+    // Отображение папки "Входящие"
     function showInbox() {
-        selectedEmail = null;
-        isComposing = false;
-        isDraftsView = false;
-        isSentView = false;
         selectedFolder = "Inbox";
-        loadEmails();
+        isDraftsView = false;
     }
 
+    // Отображение черновиков
     function showDrafts() {
-        selectedEmail = null;
         isComposing = false;
         isDraftsView = true;
-        isSentView = false;
     }
 
+    // Отображение папки "Отправленные"
     function showSent() {
-        selectedEmail = null;
-        isComposing = false;
-        isDraftsView = false;
-        isSentView = true;
         selectedFolder = "&BB4EQgQ,BEAEMAQyBDsENQQ9BD0ESwQ1-";
-        loadEmails();
+        isDraftsView = false;
     }
 
+    // Отображение папки "Корзина"
+    function showTrash() {
+        selectedFolder = "Trash";
+        isDraftsView = false;
+    }
+
+    // Открытие черновика
     function openDraft(draft) {
-        draftId = draft.id; // Передаём id черновика
+        draftId = draft.id;
         isComposing = true;
-        isDraftsView = false; // Закрываем список черновиков
+        isDraftsView = false;
     }
 </script>
 
@@ -129,26 +61,20 @@ async function openEmail(emailId) {
     <!-- Боковое меню -->
     <div class="sidebar {isOpen ? 'open' : 'closed'}">
         <button class="toggle-button" on:click={() => isOpen = !isOpen}>☰</button>
+
         <div class="menu-item" on:click={openCompose}>
             <span class="icon">✏️</span>
             {#if isOpen}
                 <span class="text">Написать</span>
             {/if}
         </div>
+
         <div class="menu-item" on:click={showInbox}>
             <span class="icon">📥</span>
             {#if isOpen}
                 <span class="text">Входящие</span>
             {/if}
         </div>
-
-        <!-- Помеченные -->
-        <!-- <div class="menu-item">
-            <span class="icon">⭐</span>
-            {#if isOpen}
-                <span class="text">Помеченные</span>
-            {/if}
-        </div> -->
 
         <div class="menu-item" on:click={showSent}>
             <span class="icon">📤</span>
@@ -157,7 +83,6 @@ async function openEmail(emailId) {
             {/if}
         </div>
 
-        <!-- Черновики -->
         <div class="menu-item" on:click={showDrafts}>
             <span class="icon">📝</span>
             {#if isOpen}
@@ -173,8 +98,7 @@ async function openEmail(emailId) {
             {/if}
         </div>
 
-        <!-- Корзина -->
-        <div class="menu-item">
+        <div class="menu-item" on:click={showTrash}>
             <span class="icon">🗑️</span>
             {#if isOpen}
                 <span class="text">Корзина</span>
@@ -185,18 +109,12 @@ async function openEmail(emailId) {
     <!-- Основное содержимое -->
     <div class="content" style="margin-left: {isOpen ? '160px' : '45px'};">
         {#if isDraftsView}
-            <!-- Список черновиков -->
             <DraftList onSelectDraft={openDraft} />
-        {:else if isSentView}
-            <EmailList {emails} onEmailSelect={openEmail} />
-        {:else if selectedEmail}
-            <!-- Просмотр письма -->
-            <EmailView email={selectedEmail} onClose={closeEmail} />
         {:else}
             <!-- Список писем -->
-            <EmailList {emails} onEmailSelect={openEmail} />
+            <EmailList key={selectedFolder} toSearchFolderName={selectedFolder} />
         {/if}    
-    </div>    
+    </div>
 
     {#if isComposing}
         <!-- Передаём draftId в компонент -->
@@ -205,7 +123,6 @@ async function openEmail(emailId) {
 </main>
 
 <style>
-    /* Стили для бокового меню */
     .sidebar {
         position: fixed;
         top: 0;
@@ -273,7 +190,6 @@ async function openEmail(emailId) {
         transition: margin-left 0.3s;
     }
 
-    /* Стили для окна "Написать" */
     .compose-window {
         position: fixed;
         bottom: 10px;
