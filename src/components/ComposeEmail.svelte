@@ -148,29 +148,29 @@
 
     <!-- Панель инструментов для форматирования -->
     <div class="toolbar">
-        <button on:click={() => formatText('bold')}>
-            <img src="bold-icon.png" alt="Bold" />
+        <button on:click={() => formatText('bold')} title="Жирный текст">
+            <span role="img" aria-label="Bold">💪</span> <!-- Эмодзи для жирного текста -->
         </button>
-        <button on:click={() => formatText('italic')}>
-            <img src="italic-icon.png" alt="Italic" />
+        <button on:click={() => formatText('italic')} title="Курсив">
+            <span role="img" aria-label="Italic">✍️</span> <!-- Эмодзи для курсивного текста -->
         </button>
-        <button on:click={() => formatText('underline')}>
-            <img src="underline-icon.png" alt="Underline" />
+        <button on:click={() => formatText('underline')} title="Подчеркнутый текст">
+            <span role="img" aria-label="Underline">❗</span> <!-- Эмодзи для подчеркнутого текста -->
         </button>
-        <button on:click={() => formatText('strikeThrough')}>
-            <img src="strikethrough-icon.png" alt="Strike-through" />
+        <button on:click={() => formatText('strikeThrough')} title="Зачеркнутый текст">
+            <span role="img" aria-label="Strike-through">❌</span> <!-- Эмодзи для зачеркнутого текста -->
         </button>
-        <button on:click={() => formatText('justifyLeft')}>
-            <img src="align-left-icon.png" alt="Align Left" />
+        <button on:click={() => formatText('justifyLeft')} title="Выравнивание влево">
+            <span role="img" aria-label="Left Align">⬅️</span> <!-- Эмодзи для выравнивания текста влево -->
         </button>
-        <button on:click={() => formatText('justifyCenter')}>
-            <img src="align-center-icon.png" alt="Align Center" />
+        <button on:click={() => formatText('justifyCenter')} title="Выравнивание по центру">
+            <span role="img" aria-label="Center Align">⬇️</span> <!-- Эмодзи для выравнивания текста по центру -->
         </button>
-        <button on:click={() => formatText('justifyRight')}>
-            <img src="align-right-icon.png" alt="Align Right" />
+        <button on:click={() => formatText('justifyRight')} title="Выравнивание вправо">
+            <span role="img" aria-label="Right Align">➡️</span> <!-- Эмодзи для выравнивания текста вправо -->
         </button>
-        <button on:click={addLink}>
-            <img src="link-icon.png" alt="Add Link" />
+        <button on:click={addLink} title="Добавить ссылку">
+            <span role="img" aria-label="Add Link">🔗</span> <!-- Эмодзи для добавления ссылки -->
         </button>
     </div>
 

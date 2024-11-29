@@ -118,12 +118,7 @@
                     <span class="subject">{email.subject}</span>
                     <span class="date">{formatDate(email.date)}</span>
                     <!-- Кнопка для удаления письма -->
-                    <button
-                        class="delete-button"
-                        on:click|stopPropagation={() => deleteEmail(email.id)}
-                    >
-                        Удалить
-                    </button>
+                    <span class="delete-icon" on:click|stopPropagation={() => deleteEmail(email.id)}>🗑️</span>
                 </div>
             {/each}
         {:else}
@@ -177,5 +172,9 @@
     .date {
         color: #999;
         font-size: 0.9em;
+    }
+
+    .delete-icon:hover {
+        background-color: #dc3545;
     }
 </style>
