@@ -24,6 +24,19 @@
         }
     }
 
+    // Функция для применения форматирования (HTML теги)
+    function formatText(command) {
+        document.execCommand(command, false, null);
+    }
+
+    // Функция для добавления ссылки
+    function addLink() {
+        const url = prompt('Введите URL ссылки:');
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+    }
+
     // Отправка письма через API
     async function sendEmail() {
         const formData = new FormData();
@@ -132,6 +145,35 @@
         <button on:click={toggleExpand}>{$isExpanded ? "Свернуть" : "Развернуть"}</button>
         <button on:click={() => dispatch("close")}>Закрыть</button>
     </div>
+
+    <!-- Панель инструментов для форматирования -->
+    <div class="toolbar">
+        <button on:click={() => formatText('bold')}>
+            <img src="bold-icon.png" alt="Bold" />
+        </button>
+        <button on:click={() => formatText('italic')}>
+            <img src="italic-icon.png" alt="Italic" />
+        </button>
+        <button on:click={() => formatText('underline')}>
+            <img src="underline-icon.png" alt="Underline" />
+        </button>
+        <button on:click={() => formatText('strikeThrough')}>
+            <img src="strikethrough-icon.png" alt="Strike-through" />
+        </button>
+        <button on:click={() => formatText('justifyLeft')}>
+            <img src="align-left-icon.png" alt="Align Left" />
+        </button>
+        <button on:click={() => formatText('justifyCenter')}>
+            <img src="align-center-icon.png" alt="Align Center" />
+        </button>
+        <button on:click={() => formatText('justifyRight')}>
+            <img src="align-right-icon.png" alt="Align Right" />
+        </button>
+        <button on:click={addLink}>
+            <img src="link-icon.png" alt="Add Link" />
+        </button>
+    </div>
+
     <label>
         Кому:
         <input type="email" bind:value={to} placeholder="Введите email" />
@@ -140,14 +182,23 @@
         Тема:
         <input type="text" bind:value={subject} placeholder="Введите тему" />
     </label>
+    
+    <!-- Используем div с contenteditable вместо textarea -->
     <label>
         Сообщение:
-        <textarea bind:value={message} placeholder="Введите сообщение"></textarea>
+        <div
+            contenteditable="true"
+            bind:innerHTML={message}
+            class="editable-message"
+            placeholder="Введите сообщение"
+        ></div>
     </label>
+
     <label>
         Прикрепить файлы:
         <input type="file" multiple on:change={handleFileChange} />
     </label>
+
     <ul>
         {#each attachments as file, index}
             <li>
@@ -190,16 +241,47 @@
         margin-bottom: 10px;
     }
 
+    .toolbar {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 10px;
+    }
+
+    .toolbar button {
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .toolbar img {
+        width: 20px;
+        height: 20px;
+    }
+
     label {
         display: block;
         margin-top: 10px;
     }
 
-    input, textarea {
+    input {
         width: 100%;
         padding: 8px;
         margin-top: 5px;
         box-sizing: border-box;
+    }
+
+    .editable-message {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        min-height: 100px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .editable-message {
+        min-height: 150px;
     }
 
     button {
