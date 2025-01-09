@@ -21,14 +21,12 @@
                 body: JSON.stringify({ folder_name: toSearchFolderName, limit: 200 }),  // Пример параметров запроса
             });
 
-            // Проверяем, успешно ли выполнен запрос
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({})); // Защита от некорректного JSON
+                const errorData = await response.json().catch(() => ({}));
                 alert(`Не удалось загрузить детали письма: ${JSON.stringify(errorData)}`);
                 return;
             }
 
-            // Обрабатываем успешный ответ
             const data = await response.json();
             if (!data || !Array.isArray(data.emailsList)) {
                 alert('Некорректный формат данных от API.');
@@ -37,15 +35,13 @@
 
             selectedEmailId = null;
             showEmailsList = true;
-            emails.set(data.emailsList);  // Сохраняем полученные письма в store
+            emails.set(data.emailsList);
         } catch (error) {
-            // Ловим возможные сетевые ошибки
             console.error('Ошибка при загрузке писем:', error);
             alert('Произошла ошибка при подключении к серверу. Проверьте соединение и попробуйте снова.');
         }
     }
 
-    // Форматирование даты
     function formatDate(dateString) {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('ru-RU', {
@@ -55,13 +51,11 @@
         }).format(date);
     }
 
-    // Удаление письма
     async function deleteEmail(emailId) {
         const confirmed = confirm("Вы уверены, что хотите удалить это письмо?");
         if (!confirmed) return;
 
         try {
-            // Отправка запроса на сервер для удаления письма
             const response = await fetch("http://localhost:8000/email/move_to_trash_or_delete", {
                 method: "POST",
                 headers: {
@@ -70,7 +64,6 @@
                 body: JSON.stringify({ email_id: emailId, folder_name: toSearchFolderName }),
             });
 
-            // Проверка на успешный ответ
             if (!response.ok) {
                 const errorData = await response.json();
                 alert(`Ошибка при удалении письма: ${errorData.detail}`);
@@ -80,7 +73,6 @@
             const result = await response.json();
             alert(result.message);
 
-            // Удаляем письмо из локального списка
             emails.update((currentEmails) =>
                 currentEmails.filter((email) => email.id !== emailId)
             );
@@ -91,22 +83,19 @@
         }
     }
 
-    // Обработчик выбора письма
     function onEmailSelect(emailId) {
         selectedEmailId = emailId;
-        showEmailsList = false;  // Прячем список писем и показываем выбранное письмо
+        showEmailsList = false;
     }
 
-    // Следим за изменениями toSearchFolderName
-    $: toSearchFolderName, loadEmails(); // При изменении toSearchFolderNamez выполняется новый запрос
+    $: toSearchFolderName, loadEmails();
 
-    // Функция для возвращения к списку писем
     function closeEmailView() {
-        showEmailsList = true;  // Показываем список писем
-        selectedEmailId = null; // Очищаем выбранный email
+        showEmailsList = true;
+        selectedEmailId = null;
     }
 
-    onMount(loadEmails); // При монтировании компонента загружаем письма
+    onMount(loadEmails);
 </script>
 
 <div class="email-list">
@@ -114,67 +103,94 @@
         {#if $emails.length > 0}
             {#each $emails as email}
                 <div class="email-item" on:click={() => onEmailSelect(email.id)}>
-                    <span class="sender">{email.sender}</span>
-                    <span class="subject">{email.subject}</span>
-                    <span class="date">{formatDate(email.date)}</span>
-                    <!-- Кнопка для удаления письма -->
-                    <span class="delete-icon" on:click|stopPropagation={() => deleteEmail(email.id)}>🗑️</span>
+                    <div class="email-info">
+                        <span class="sender">{email.sender}</span>
+                        <span class="subject">{email.subject}</span>
+                    </div>
+                    <div class="email-actions">
+                        <span class="date">{formatDate(email.date)}</span>
+                        <button class="delete-button" on:click|stopPropagation={() => deleteEmail(email.id)} title="Удалить">✖</button>
+                    </div>
                 </div>
             {/each}
         {:else}
             <p>Загрузка...</p>
         {/if}
     {:else}
-        <!-- Показываем компонент EmailView с подробным содержанием письма -->
         <EmailView idEmail={selectedEmailId} folderEmail={toSearchFolderName} onClose={closeEmailView} />
     {/if}
 </div>
 
 <style>
     .email-list {
-        border-right: 1px solid #ddd;
-        padding: 10px;
-        background-color: #fff;
-        transition: width 0.3s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        padding: 20px;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     .email-item {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
-        border-bottom: 1px solid #ddd;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         cursor: pointer;
-        transition: background-color 0.2s;
     }
 
     .email-item:hover {
-        background-color: #f5f5f5;
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .email-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .sender {
+        font-size: 16px;
         font-weight: bold;
+        color: #333;
     }
 
     .subject {
-        flex: 1;
-        margin-left: 10px;
+        font-size: 14px;
         color: #666;
+        margin-top: 5px;
     }
 
-    .icon {
-        margin-right: 10px;
-    }
-
-    .icon:hover {
-        background-color: #999;
+    .email-actions {
+        display: flex;
+        align-items: center;
     }
 
     .date {
+        font-size: 12px;
         color: #999;
-        font-size: 0.9em;
+        margin-right: 15px;
     }
 
-    .delete-icon:hover {
-        background-color: #dc3545;
+    .delete-button {
+        background: none;
+        border: none;
+        color: #ff4d4f;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+    }
+
+    .delete-button:hover {
+        background-color: rgba(255, 77, 79, 0.1);
     }
 </style>
