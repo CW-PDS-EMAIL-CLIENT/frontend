@@ -89,28 +89,28 @@
         <button class="toggle-button" on:click={() => isOpen = !isOpen}>☰</button>
 
         <div class="menu-item" on:click={openCompose}>
-            <span class="icon">✏️</span>
+            <span class="icon">✍️</span>
             {#if isOpen}
                 <span class="text">Написать</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showInbox}>
-            <span class="icon">📥</span>
+            <span class="icon">📩</span>
             {#if isOpen}
                 <span class="text">Входящие</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showSent}>
-            <span class="icon">📤</span>
+            <span class="icon">📧</span>
             {#if isOpen}
                 <span class="text">Отправленные</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showDrafts}>
-            <span class="icon">📝</span>
+            <span class="icon">🗒️</span>
             {#if isOpen}
                 <span class="text">Черновики</span>
             {/if}
@@ -118,14 +118,14 @@
 
         <!-- Пункт меню "Шифрование" -->
         <div class="menu-item" on:click={showEncryptionSettings}>
-            <span class="icon">🔒</span>
+            <span class="icon">🔐</span>
             {#if isOpen}
                 <span class="text">Шифрование</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showAccounts}>
-            <span class="icon">👤</span>
+            <span class="icon">👥</span>
             {#if isOpen}<span class="text">Аккаунты</span>{/if}
         </div>
 
@@ -162,11 +162,12 @@
         left: 0;
         width: 160px;
         height: 100%;
-        background-color: #f2f3f5;
-        color: #333;
+        background-color: #1c1e26;
+        color: #fff;
         padding: 10px;
         transition: width 0.3s;
         overflow: hidden;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar.closed {
@@ -179,25 +180,26 @@
         font-size: 28px;
         cursor: pointer;
         margin-bottom: 20px;
-        color: #333;
+        color: #fff;
         padding: 10px;
+        transition: background-color 0.3s;
     }
 
     .toggle-button:hover {
-        background-color: #e0e0e0;
+        background-color: #333;
     }
 
     .menu-item {
         display: flex;
         align-items: center;
-        padding: 10px 0;
+        padding: 12px 0;
         cursor: pointer;
         transition: background 0.3s;
-        border-radius: 5%;
+        border-radius: 8px;
     }
 
     .menu-item:hover {
-        background-color: #e0e0e0;
+        background-color: #333;
     }
 
     .icon {
@@ -221,6 +223,8 @@
     .content {
         padding: 20px;
         transition: margin-left 0.3s;
+        background-color: #f9f9f9;
+        min-height: 100vh;
     }
 
     .compose-window {
