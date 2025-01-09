@@ -1,35 +1,33 @@
 <script>
     import { onMount } from "svelte";
-    import { userEncrypt } from "./store"
-    import { loop_guard } from "svelte/internal";
+    import { userEncrypt } from "./store";
 
-    let keysData = []; // Данные таблицы с ключами
+    let keysData = []; // Data for the keys table
 
-    // Загрузка данных с API
+    // Load data from API
     async function fetchKeysData() {
         try {
             const response = await fetch("http://127.0.0.1:8000/keys/related-dates/");
             keysData = await response.json();
-            //alert("Данные загружены: " + JSON.stringify(keysData, null, 2));
         } catch (error) {
-            alert("Ошибка загрузки данных: " + error.message);
+            alert("Failed to load data: " + error.message);
         }
     }
 
-    // Синхронизация публичных ключей для конкретного email
+    // Synchronize public keys for a specific email
     async function syncPublicKeys(email) {
         try {
             const response = await fetch("http://127.0.0.1:8000/sync-public-keys/?recipient_email=" + email, {
                 method: "PUT"
             });
             const result = await response.json();
-            alert("Синхронизация выполнена: " + JSON.stringify(result, null, 2));
+            alert("Synchronization completed: " + JSON.stringify(result, null, 2));
         } catch (error) {
-            alert("Ошибка синхронизации: " + error.message);
+            alert("Synchronization error: " + error.message);
         }
     }
 
-    // Генерация и отправка приватных ключей для конкретного email
+    // Generate and send private keys for a specific email
     async function generateKeys(email) {
         try {
             const formData = new FormData();
@@ -40,13 +38,13 @@
                 body: formData
             });
             const result = await response.json();
-            alert("Приватные ключи сгенерированы: " + JSON.stringify(result, null, 2));
+            alert("Private keys generated: " + JSON.stringify(result, null, 2));
         } catch (error) {
-            alert("Ошибка генерации ключей: " + error.message);
+            alert("Key generation error: " + error.message);
         }
     }
 
-    // Экспорт публичных ключей
+    // Export public keys
     async function exportKeys() {
         try {
             const response = await fetch("http://127.0.0.1:8000/keys/export/");
@@ -59,16 +57,16 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                alert("Ключи экспортированы");
+                alert("Keys exported");
             } else {
-                alert("Ошибка экспорта ключей");
+                alert("Export error");
             }
         } catch (error) {
-            alert("Ошибка экспорта: " + error.message);
+            alert("Export failed: " + error.message);
         }
     }
 
-    // Импорт публичных ключей
+    // Import public keys
     async function importKeys(event) {
         try {
             const file = event.target.files[0];
@@ -82,9 +80,9 @@
                 body: formData
             });
             const result = await response.json();
-            alert("Импорт выполнен: " + JSON.stringify(result, null, 2));
+            alert("Import completed: " + JSON.stringify(result, null, 2));
         } catch (error) {
-            alert("Ошибка импорта: " + error.message);
+            alert("Import failed: " + error.message);
         }
     }
 
@@ -92,38 +90,40 @@
 </script>
 
 <div class="encryption-settings">
-    <div class="actions">
+    <header class="settings-header">
         <label>
-            Использовать шифрование
-            <input type="checkbox" bind:checked={$userEncrypt}/>
-            {$userEncrypt ? "Да" : "Нет"}
+            Enable Encryption
+            <input type="checkbox" bind:checked={$userEncrypt} />
+            <span>{$userEncrypt ? "On" : "Off"}</span>
         </label>
+    </header>
 
-        <button on:click={exportKeys}>Экспортировать ключи</button>
-        <input type="file" accept=".json" on:change={importKeys} />
+    <div class="actions">
+        <button class="export-button" on:click={exportKeys}>Export Keys</button>
+        <input type="file" accept=".json" on:change={importKeys} class="import-input" />
     </div>
 
-    <table>
+    <table class="keys-table">
         <thead>
             <tr>
                 <th>Email</th>
-                <th>Дата пуб. ключа</th>
-                <th>Дата прив. ключа</th>
-                <th>Действия</th>
+                <th>Public Key Date</th>
+                <th>Private Key Date</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {#each keysData as key}
                 <tr>
                     <td>{key.related_email}</td>
-                    <td>{key.last_public_key_date || "Нет данных"}</td>
-                    <td>{key.last_private_key_date || "Нет данных"}</td>
+                    <td>{key.last_public_key_date || "No Data"}</td>
+                    <td>{key.last_private_key_date || "No Data"}</td>
                     <td>
-                        <button on:click={() => syncPublicKeys(key.related_email)}>
-                            Синхронизировать публичные ключи
+                        <button class="sync-button" on:click={() => syncPublicKeys(key.related_email)}>
+                            Sync Public Keys
                         </button>
-                        <button on:click={() => generateKeys(key.related_email)}>
-                            Обновить приватные ключи
+                        <button class="generate-button" on:click={() => generateKeys(key.related_email)}>
+                            Update Private Keys
                         </button>
                     </td>
                 </tr>
@@ -135,42 +135,75 @@
 <style>
     .encryption-settings {
         padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    .settings-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
     }
 
     .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         margin-bottom: 20px;
     }
 
-    table {
+    .keys-table {
         width: 100%;
         border-collapse: collapse;
+        border: 1px solid #ccc;
     }
 
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
+    .keys-table th, .keys-table td {
+        padding: 10px;
+        border: 1px solid #ccc;
         text-align: left;
     }
 
-    th {
-        background-color: #f4f4f4;
+    .keys-table th {
+        background-color: #f9f9f9;
+        font-weight: bold;
     }
 
-    button {
-        background-color: #007bff;
-        color: white;
+    .export-button, .sync-button, .generate-button {
+        padding: 8px 12px;
         border: none;
-        padding: 5px 10px;
-        cursor: pointer;
         border-radius: 4px;
-        margin-right: 5px;
+        cursor: pointer;
     }
 
-    button:hover {
+    .export-button {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .export-button:hover {
         background-color: #0056b3;
     }
 
-    input[type="file"] {
-        margin-left: 10px;
+    .sync-button {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .sync-button:hover {
+        background-color: #218838;
+    }
+
+    .generate-button {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .generate-button:hover {
+        background-color: #e0a800;
+    }
+
+    .import-input {
+        display: none;
     }
 </style>
