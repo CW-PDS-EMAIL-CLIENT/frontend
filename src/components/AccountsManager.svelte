@@ -6,22 +6,18 @@
     let newPassword = "";
     let selectedAccount = null; // Активный аккаунт
 
-    // Загрузка аккаунтов из LocalStorage при загрузке компонента
     onMount(async () => {
         const storedAccounts = localStorage.getItem("emailAccounts");
         accounts = storedAccounts ? JSON.parse(storedAccounts) : [];
-        
-        // Получаем текущий активный аккаунт через API
+
         try {
             const response = await fetch("http://127.0.0.1:8000/current_imap_account/");
             const currentAccount = await response.json();
-            
+
             if (response.ok && currentAccount.email_user) {
                 selectedAccount = accounts.find(acc => acc.email === currentAccount.email_user);
                 if (!selectedAccount) {
-                    // Добавляем текущий аккаунт, если его нет
                     selectedAccount = { email: currentAccount.email_user, password: "??????", showPassword: false };
-                    //accounts.push(selectedAccount);
                     saveAccounts();
                 }
             }
@@ -30,12 +26,10 @@
         }
     });
 
-    // Сохранение аккаунтов в LocalStorage
     function saveAccounts() {
         localStorage.setItem("emailAccounts", JSON.stringify(accounts));
     }
 
-    // Добавление нового аккаунта
     async function addAccount() {
         if (!newEmail || !newPassword) {
             alert("Введите email и пароль.");
@@ -58,7 +52,6 @@
                 saveAccounts();
                 newEmail = "";
                 newPassword = "";
-                //alert("Аккаунт успешно добавлен.");
             } else {
                 alert("Ошибка авторизации: " + JSON.stringify(result, null, 2));
             }
@@ -67,13 +60,11 @@
         }
     }
 
-    // Удаление аккаунта
     function removeAccount(index) {
         accounts.splice(index, 1);
         saveAccounts();
     }
 
-    // Переключение отображения пароля
     function togglePasswordVisibility(account) {
         const targetAccount = accounts.find(acc => acc.email === account.email);
         if (targetAccount) {
@@ -81,7 +72,6 @@
         }
     }
 
-    // Смена активного аккаунта
     async function changeAccount(account) {
         try {
             const response = await fetch("http://127.0.0.1:8000/authorize_account/", {
@@ -96,7 +86,6 @@
 
             if (response.ok) {
                 selectedAccount = account;
-                //alert(`Аккаунт ${account.email} был успешно выбран.`);
             } else {
                 alert("Ошибка при смене аккаунта: " + JSON.stringify(result, null, 2));
             }
@@ -107,45 +96,52 @@
 </script>
 
 <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+    body {
+        font-family: Arial, sans-serif;
+        color: #333;
     }
 
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-    }
-
-    th {
-        background-color: #f2f3f5;
-        text-align: left;
+    h2 {
+        text-align: center;
+        color: #444;
     }
 
     .form-container {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 15px;
+        margin: 20px auto;
+        justify-content: center;
     }
 
     input {
-        padding: 8px;
+        padding: 10px;
+        font-size: 14px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 5px;
+        width: 250px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     }
 
     button {
-        padding: 8px 12px;
+        padding: 10px 20px;
+        font-size: 14px;
         border: none;
-        background-color: #007bff;
-        color: white;
+        border-radius: 5px;
         cursor: pointer;
-        border-radius: 4px;
+    }
+
+    button {
+        background-color: #28a745;
+        color: white;
     }
 
     button:hover {
-        background-color: #0056b3;
+        background-color: #218838;
     }
 
     .delete-button {
@@ -153,12 +149,35 @@
     }
 
     .delete-button:hover {
-        background-color: #b02a37;
+        background-color: #c82333;
+    }
+
+    table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        width: 80%;
+        max-width: 1200px;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        color: #555;
+        font-weight: bold;
+    }
+
+    tr:hover {
+        background-color: #f1f1f1;
     }
 
     .active-account {
         border-left: 4px solid #007bff;
-        background-color: #f0f8ff;
+        background-color: #e9f5ff;
     }
 </style>
 
