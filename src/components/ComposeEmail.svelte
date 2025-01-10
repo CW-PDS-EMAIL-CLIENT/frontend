@@ -142,8 +142,8 @@
 <div class="compose-email" class:is-expanded={$isExpanded}>
     <div class="header">
         <h2>{id ? "Редактировать черновик" : "Написать письмо"}</h2>
-        <button on:click={toggleExpand}>{$isExpanded ? "Свернуть" : "Развернуть"}</button>
-        <button on:click={() => dispatch("close")}>Закрыть</button>
+        <button class="expand-btn" on:click={toggleExpand}>{$isExpanded ? "Свернуть" : "Развернуть"}</button>
+        <button class="close-btn" on:click={() => dispatch("close")}>Закрыть</button>
     </div>
 
     <!-- Панель инструментов для форматирования -->
@@ -239,6 +239,35 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
+    }
+
+    .header button {
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 1em;
+        border-radius: 5px;
+        transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .header button:hover {
+        background-color: #f0f0f0;
+        transform: scale(1.05);
+    }
+
+    .header button:active {
+        background-color: #e0e0e0;
+        transform: scale(0.95);
+    }
+
+    .expand-btn {
+        color: #0066cc;
+        background-color: #f9f9f9;
+    }
+
+    .close-btn {
+        color: #cc0000;
+        background-color: #fff5f5;
     }
 
     .toolbar {
