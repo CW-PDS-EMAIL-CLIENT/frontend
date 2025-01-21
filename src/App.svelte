@@ -89,28 +89,28 @@
         <button class="toggle-button" on:click={() => isOpen = !isOpen}>☰</button>
 
         <div class="menu-item" on:click={openCompose}>
-            <span class="icon">✍️</span>
+            <img class="icon" src="icons/compose.svg" alt="✍️" />
             {#if isOpen}
                 <span class="text">Написать</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showInbox}>
-            <span class="icon">📩</span>
+            <img class="icon" src="icons/inbox.svg" alt="📩" />
             {#if isOpen}
                 <span class="text">Входящие</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showSent}>
-            <span class="icon">📧</span>
+            <img class="icon" src="icons/sent.svg" alt="📧" />
             {#if isOpen}
                 <span class="text">Отправленные</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showDrafts}>
-            <span class="icon">🗒️</span>
+            <img class="icon" src="icons/drafts.svg" alt="🗒️" />
             {#if isOpen}
                 <span class="text">Черновики</span>
             {/if}
@@ -118,19 +118,19 @@
 
         <!-- Пункт меню "Шифрование" -->
         <div class="menu-item" on:click={showEncryptionSettings}>
-            <span class="icon">🔐</span>
+            <img class="icon" src="icons/encryption.svg" alt="🔐" />
             {#if isOpen}
                 <span class="text">Шифрование</span>
             {/if}
         </div>
 
         <div class="menu-item" on:click={showAccounts}>
-            <span class="icon">👥</span>
+            <img class="icon" src="icons/accounts.svg" alt="👥" />
             {#if isOpen}<span class="text">Аккаунты</span>{/if}
         </div>
 
         <div class="menu-item" on:click={showTrash}>
-            <span class="icon">🗑️</span>
+            <img class="icon" src="icons/trash.svg" alt="🗑️" />
             {#if isOpen}
                 <span class="text">Корзина</span>
             {/if}
@@ -162,12 +162,17 @@
         left: 0;
         width: 160px;
         height: 100%;
-        background-color: #1c1e26;
+        background-color: green;
         color: #fff;
         padding: 10px;
         transition: width 0.3s;
         overflow: hidden;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar img {
+        width: 35px;
+        height: 35px;
     }
 
     .sidebar.closed {
