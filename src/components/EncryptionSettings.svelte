@@ -90,17 +90,20 @@
 </script>
 
 <div class="encryption-settings">
-    <header class="settings-header">
-        <label>
-            Enable Encryption
+    <div class="header-section">
+        <label class="encryption-toggle">
+            <span>Enable Encryption:</span>
             <input type="checkbox" bind:checked={$userEncrypt} />
             <span>{$userEncrypt ? "On" : "Off"}</span>
         </label>
-    </header>
+    </div>
 
-    <div class="actions">
+    <div class="actions-section">
         <button class="export-button" on:click={exportKeys}>Export Keys</button>
-        <input type="file" accept=".json" on:change={importKeys} class="import-input" />
+        <label class="import-button">
+            Import Keys
+            <input type="file" accept=".json" on:change={importKeys} />
+        </label>
     </div>
 
     <table class="keys-table">
@@ -135,54 +138,80 @@
 <style>
     .encryption-settings {
         padding: 20px;
+        margin-left: 30px;
         font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .settings-header {
+    .header-section {
+        margin-bottom: 20px;
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        margin-bottom: 15px;
+        align-items: center;
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
     }
 
-    .actions {
+    .encryption-toggle {
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+
+    .actions-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 20px;
+    }
+
+    .export-button, .import-button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .export-button:hover, .import-button:hover {
+        background-color: #0056b3;
+    }
+
+    .import-button input {
+        display: none;
     }
 
     .keys-table {
         width: 100%;
         border-collapse: collapse;
-        border: 1px solid #ccc;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .keys-table th, .keys-table td {
-        padding: 10px;
-        border: 1px solid #ccc;
+        padding: 12px;
         text-align: left;
+        border-bottom: 1px solid #ddd;
     }
 
     .keys-table th {
-        background-color: #f9f9f9;
+        background-color: #f1f1f1;
         font-weight: bold;
     }
 
-    .export-button, .sync-button, .generate-button {
+    .sync-button, .generate-button {
         padding: 8px 12px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-    }
-
-    .export-button {
-        background-color: #007bff;
-        color: #fff;
-    }
-
-    .export-button:hover {
-        background-color: #0056b3;
     }
 
     .sync-button {
@@ -201,9 +230,5 @@
 
     .generate-button:hover {
         background-color: #e0a800;
-    }
-
-    .import-input {
-        display: none;
     }
 </style>
