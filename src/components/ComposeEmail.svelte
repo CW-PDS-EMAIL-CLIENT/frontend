@@ -4,17 +4,16 @@
     import { drafts } from "./drafts.js";
     import { userEncrypt } from "./store.js";
 
-    export let id = null; // Переданный id черновика
+    export let id = null;
 
     const dispatch = createEventDispatcher();
 
     let to = "";
     let subject = "";
     let message = "";
-    let attachments = []; // Хранилище выбранных файлов
-    let isExpanded = writable(false); // Управление состоянием окна
+    let attachments = [];
+    let isExpanded = writable(false);
 
-    // Инициализация черновика при монтировании
     $: {
         if (id !== null) {
             const existingDraft = $drafts.find((draft) => draft.id === id);
@@ -24,12 +23,10 @@
         }
     }
 
-    // Функция для применения форматирования (HTML теги)
     function formatText(command) {
         document.execCommand(command, false, null);
     }
 
-    // Функция для добавления ссылки
     function addLink() {
         const url = prompt('Введите URL ссылки:');
         if (url) {
@@ -37,7 +34,6 @@
         }
     }
 
-    // Отправка письма через API
     async function sendEmail() {
         const formData = new FormData();
         formData.append("to_email", to);
@@ -46,10 +42,8 @@
         formData.append("from_name", "Your Name");
         formData.append("to_name", "Recipient Name");
 
-        // Добавляем файлы в FormData
         attachments.forEach((file) => formData.append("attachments", file));
 
-        // Добавляем глобальную переменную userEncrypt
         formData.append("use_encrypt", $userEncrypt);
 
         try {
@@ -72,35 +66,29 @@
     }
 
     function handleFileChange(event) {
-        // Добавляем выбранные файлы в массив вложений
         Array.from(event.target.files).forEach(file => {
             attachments = [...attachments, file];
         });
     }
 
-    // Удаление файла из списка
     function removeAttachment(index) {
         attachments = attachments.filter((_, i) => i !== index);
     }
 
-    // Расширение/сворачивание окна
     function toggleExpand() {
         isExpanded.update(value => !value);
     }
 
-    // Сохранение черновика
     function saveDraft() {
         if (to.length === 0 && subject.length === 0 && message.length === 0 && attachments.length === 0) return;
 
         drafts.update((existingDrafts) => {
             if (id !== null) {
-                // Обновление существующего черновика
                 const draftIndex = existingDrafts.findIndex((d) => d.id === id);
                 if (draftIndex !== -1) {
                     existingDrafts[draftIndex] = { id, to, subject, message, attachments };
                 }
             } else {
-                // Создание нового черновика
                 id = Date.now();
                 existingDrafts.push({ id, to, subject, message, attachments });
             }
@@ -108,7 +96,6 @@
         });
     }
 
-    // Открытие существующего черновика
     function openDraft(draft) {
         to = draft.to || "";
         subject = draft.subject || "";
@@ -116,13 +103,11 @@
         attachments = draft.attachments || [];
     }
 
-    // Удаление черновика
     function deleteDraft() {
         drafts.update((existingDrafts) => existingDrafts.filter((d) => d.id !== id));
         clearForm();
     }
 
-    // Очистка формы
     function clearForm() {
         to = "";
         subject = "";
@@ -131,7 +116,6 @@
         id = null;
     }
 
-    // Автосохранение при изменении полей
     $: {
         if (to || subject || message || attachments.length > 0) {
             saveDraft();
@@ -146,7 +130,6 @@
         <button class="close-btn" on:click={() => dispatch("close")}>Закрыть</button>
     </div>
 
-    <!-- Панель инструментов для форматирования -->
     <div class="toolbar">
         <button on:click={() => formatText('bold')} title="Жирный текст">
             <img src="/icons/bold-icon.svg" alt="Жирный текст" />
@@ -183,7 +166,6 @@
         <input type="text" bind:value={subject} placeholder="Введите тему" />
     </label>
     
-    <!-- Используем div с contenteditable вместо textarea -->
     <label>
         Сообщение:
         <div
@@ -215,124 +197,149 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        width: 350px;
+        width: 380px;
         padding: 20px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: width 0.3s, height 0.3s, bottom 0.3s, right 0.3s;
-        max-height: 400px;
-        overflow: auto;
+        background-color: #f9faff;
+        border: 1px solid #d1d8e0;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        overflow-y: auto;
+        max-height: 90%;
     }
 
     .compose-email.is-expanded {
-        width: 80%;
-        height: 80%;
-        bottom: 10%;
-        right: 10%;
-        max-height: none;
+        width: 75%;
+        height: 85%;
+        bottom: 5%;
+        right: 12.5%;
     }
 
     .header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+    }
+
+    .header h2 {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #4a4e69;
     }
 
     .header button {
+        background-color: #f44336;
         border: none;
-        padding: 8px 12px;
+        color: #ffffff;
         cursor: pointer;
-        font-size: 1em;
-        border-radius: 5px;
-        transition: transform 0.2s, background-color 0.3s;
+        font-size: 0.875rem;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .header button.expand-btn {
+        background-color: #4caf50;
     }
 
     .header button:hover {
-        background-color: #f0f0f0;
-        transform: scale(1.05);
+        background-color: #c62828;
     }
 
-    .header button:active {
-        background-color: #e0e0e0;
-        transform: scale(0.95);
-    }
-
-    .expand-btn {
-        color: #0066cc;
-        background-color: #f9f9f9;
-    }
-
-    .close-btn {
-        color: #cc0000;
-        background-color: #fff5f5;
+    .header button.expand-btn:hover {
+        background-color: #388e3c;
     }
 
     .toolbar {
         display: flex;
-        justify-content: space-around;
-        margin-bottom: 10px;
+        justify-content: space-evenly;
+        background-color: #edf2f7;
+        border-radius: 12px;
+        padding: 8px;
+        margin-bottom: 16px;
     }
 
     .toolbar button {
         background: none;
         border: none;
         cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .toolbar button:hover {
+        background-color: #e9ecef;
     }
 
     .toolbar img {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
     }
 
     label {
+        font-size: 0.875rem;
+        color: #495057;
+        margin-bottom: 8px;
         display: block;
-        margin-top: 10px;
     }
 
     input {
         width: 100%;
         padding: 8px;
-        margin-top: 5px;
-        box-sizing: border-box;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        margin-top: 4px;
+        font-size: 0.875rem;
     }
 
     .editable-message {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        box-sizing: border-box;
-        min-height: 100px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-    }
-
-    .editable-message {
+        width: 93%;
+        padding: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        background-color: #ffffff;
         min-height: 150px;
-    }
-
-    button {
-        margin-top: 15px;
-        padding: 10px 15px;
-        cursor: pointer;
+        font-size: 0.875rem;
+        line-height: 1.5;
     }
 
     ul {
-        list-style-type: none;
+        list-style: none;
         padding: 0;
-        margin-top: 10px;
+        margin: 16px 0 0;
     }
 
     li {
-        font-size: 0.9em;
-        color: #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 0.875rem;
     }
 
     li button {
-        margin-left: 10px;
-        color: red;
+        background: none;
+        border: none;
+        color: #dc3545;
         cursor: pointer;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
     }
 </style>
