@@ -91,7 +91,7 @@
         <div class="menu-item" on:click={openCompose}>
             <img class="icon" src="icons/compose.svg" alt="✍️" />
             {#if isOpen}
-                <span class="text">Написать</span>
+                <span class="text">Создать</span>
             {/if}
         </div>
 
@@ -126,7 +126,9 @@
 
         <div class="menu-item" on:click={showAccounts}>
             <img class="icon" src="icons/accounts.svg" alt="👥" />
-            {#if isOpen}<span class="text">Аккаунты</span>{/if}
+            {#if isOpen}
+                <span class="text">Аккаунты</span>
+            {/if}
         </div>
 
         <div class="menu-item" on:click={showTrash}>
@@ -138,7 +140,7 @@
     </div>
 
     <!-- Основное содержимое -->
-    <div class="content" style="margin-left: {isOpen ? '160px' : '45px'};">
+    <div class="content" style="margin-left: {isOpen ? '200px' : '60px'};">
         {#if isEncryptionView}
             <EncryptionSettings />
         {:else if isDraftsView}
@@ -156,61 +158,68 @@
 </main>
 
 <style>
+    /* Боковое меню */
     .sidebar {
         position: fixed;
         top: 0;
         left: 0;
-        width: 160px;
+        width: 200px;
         height: 100%;
-        background-color: green;
-        color: #fff;
-        padding: 10px;
-        transition: width 0.3s;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 20px;
+        transition: width 0.3s ease;
         overflow: hidden;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        font-family: 'Arial', sans-serif;
     }
 
     .sidebar img {
-        width: 35px;
-        height: 35px;
+        width: 30px;
+        height: 30px;
+        transition: transform 0.3s ease;
     }
 
     .sidebar.closed {
-        width: 45px;
+        width: 60px;
+    }
+
+    .sidebar .icon:hover {
+        transform: scale(1.1);
     }
 
     .toggle-button {
         background: none;
         border: none;
-        font-size: 28px;
+        font-size: 32px;
         cursor: pointer;
-        margin-bottom: 20px;
-        color: #fff;
+        margin-bottom: 25px;
+        color: #ecf0f1;
         padding: 10px;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s ease;
     }
 
     .toggle-button:hover {
-        background-color: #333;
+        background-color: #34495e;
     }
 
     .menu-item {
         display: flex;
         align-items: center;
-        padding: 12px 0;
+        padding: 15px 0;
         cursor: pointer;
-        transition: background 0.3s;
-        border-radius: 8px;
+        transition: background 0.3s ease, padding-left 0.3s ease;
+        border-radius: 10px;
     }
 
     .menu-item:hover {
-        background-color: #333;
+        background-color: #34495e;
+        padding-left: 20px;
     }
 
     .icon {
-        font-size: 24px;
-        margin-right: 10px;
-        padding-left: 5px;
+        font-size: 26px;
+        margin-right: 15px;
     }
 
     .sidebar.closed .text {
@@ -222,45 +231,51 @@
     }
 
     .text {
-        font-size: 16px;
+        font-size: 18px;
+        font-weight: 600;
+        text-transform: capitalize;
     }
 
+    /* Основное содержимое */
     .content {
-        padding: 20px;
-        transition: margin-left 0.3s;
-        background-color: #f9f9f9;
+        padding: 30px;
+        transition: margin-left 0.3s ease;
+        background-color: #ecf0f1;
         min-height: 100vh;
+        font-family: 'Verdana', sans-serif;
     }
 
+    /* Окно для написания письма */
     .compose-window {
         position: fixed;
-        bottom: 10px;
-        right: 10px;
-        width: 400px;
-        height: 300px;
+        bottom: 20px;
+        right: 20px;
+        width: 420px;
+        height: 350px;
         background-color: #ffffff;
-        border: 1px solid #ccc;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 10px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 20px;
         transition: all 0.3s ease;
         z-index: 10;
     }
 
     .compose-window.expanded {
-        width: 80%;
+        width: 85%;
         height: 80%;
-        bottom: 10%;
-        right: 10%;
+        bottom: 5%;
+        right: 5%;
     }
 
     .expand-button {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 14px;
-        color: #007bff;
+        font-size: 16px;
+        color: #3498db;
     }
 </style>
+
