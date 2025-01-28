@@ -1,15 +1,14 @@
 <script>
     import { writable } from 'svelte/store';
     import { onMount } from 'svelte';
-    import EmailView from './EmailView.svelte'; // Импорт компонента для просмотра письма
+    import EmailView from './EmailView.svelte';
 
-    export let toSearchFolderName = "Inbox"; // Папка для отображения
+    export let toSearchFolderName = "Inbox";
 
-    let emails = writable([]);  // Храним список писем
-    let selectedEmailId = null;  // Храним ID выбранного письма
-    let showEmailsList = true;   // Флаг для переключения между списком писем и отображением письма
+    let emails = writable([]);
+    let selectedEmailId = null;
+    let showEmailsList = true;
 
-    // Загрузка писем с API
     async function loadEmails() {
         emails = writable([]);
         try {
@@ -18,18 +17,18 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ folder_name: toSearchFolderName, limit: 200 }),  // Пример параметров запроса
+                body: JSON.stringify({ folder_name: toSearchFolderName, limit: 200 }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                alert(`Не удалось загрузить детали письма: ${JSON.stringify(errorData)}`);
+                alert(`Error loading emails: ${JSON.stringify(errorData)}`);
                 return;
             }
 
             const data = await response.json();
             if (!data || !Array.isArray(data.emailsList)) {
-                alert('Некорректный формат данных от API.');
+                alert('Invalid API response format.');
                 return;
             }
 
@@ -37,14 +36,14 @@
             showEmailsList = true;
             emails.set(data.emailsList);
         } catch (error) {
-            console.error('Ошибка при загрузке писем:', error);
-            alert('Произошла ошибка при подключении к серверу. Проверьте соединение и попробуйте снова.');
+            console.error('Error loading emails:', error);
+            alert('Error connecting to the server.');
         }
     }
 
     function formatDate(dateString) {
         const date = new Date(dateString);
-        return new Intl.DateTimeFormat('ru-RU', {
+        return new Intl.DateTimeFormat('en-US', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
@@ -52,7 +51,7 @@
     }
 
     async function deleteEmail(emailId) {
-        const confirmed = confirm("Вы уверены, что хотите удалить это письмо?");
+        const confirmed = confirm("Are you sure you want to delete this email?");
         if (!confirmed) return;
 
         try {
@@ -66,7 +65,7 @@
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Ошибка при удалении письма: ${errorData.detail}`);
+                alert(`Error deleting email: ${errorData.detail}`);
                 return;
             }
 
@@ -78,8 +77,8 @@
             );
 
         } catch (error) {
-            console.error("Ошибка при удалении письма:", error);
-            alert("Произошла ошибка при удалении письма.");
+            console.error("Error deleting email:", error);
+            alert("Error deleting email.");
         }
     }
 
@@ -109,12 +108,12 @@
                     </div>
                     <div class="email-actions">
                         <span class="date">{formatDate(email.date)}</span>
-                        <button class="delete-button" on:click|stopPropagation={() => deleteEmail(email.id)} title="Удалить">✖</button>
+                        <button class="delete-button" on:click|stopPropagation={() => deleteEmail(email.id)} title="Delete">✖</button>
                     </div>
                 </div>
             {/each}
         {:else}
-            <p>Загрузка...</p>
+            <p>Loading emails...</p>
         {/if}
     {:else}
         <EmailView idEmail={selectedEmailId} folderEmail={toSearchFolderName} onClose={closeEmailView} />
@@ -127,27 +126,30 @@
         flex-direction: column;
         height: 100%;
         overflow-y: auto;
-        background-color: #f9f9f9;
+        background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
         padding: 20px;
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-left: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
     }
 
     .email-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-        background-color: #fff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        background-color: #ffffff;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         cursor: pointer;
+        border: 1px solid #dcdcdc;
     }
 
     .email-item:hover {
-        transform: scale(1.02);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        background-color: #f5f5f5;
     }
 
     .email-info {
@@ -157,15 +159,15 @@
     }
 
     .sender {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
-        color: #333;
+        color: #1e2022;
     }
 
     .subject {
         font-size: 14px;
-        color: #666;
-        margin-top: 5px;
+        color: #6c757d;
+        margin-top: 8px;
     }
 
     .email-actions {
@@ -174,23 +176,25 @@
     }
 
     .date {
-        font-size: 12px;
-        color: #999;
+        font-size: 13px;
+        font-weight: bold;
+        color: #6c757d;
         margin-right: 15px;
     }
 
     .delete-button {
         background: none;
         border: none;
-        color: #ff4d4f;
+        color: #dc3545;
         font-size: 16px;
         cursor: pointer;
-        padding: 5px;
+        padding: 8px;
         border-radius: 50%;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s;
     }
 
     .delete-button:hover {
-        background-color: rgba(255, 77, 79, 0.1);
+        background-color: rgba(220, 53, 69, 0.1);
+        transform: scale(1.1);
     }
 </style>
